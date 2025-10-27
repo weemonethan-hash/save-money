@@ -1,245 +1,356 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-<meta charset="utf-8" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Hours Calculator & Reminders</title>
 <style>
-body{font-family:system-ui;max-width:760px;margin:24px auto;padding:0 16px;color:#111}
-header{display:flex;align-items:center;gap:12px}
-img.logo{width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid #ddd}
-.card{border:1px solid #eee;padding:12px;border-radius:8px;margin-top:12px}
-label{display:block;margin-top:8px;font-size:13px}
-input,button,select{padding:8px;margin-top:6px;width:100%;box-sizing:border-box}
-.row{display:flex;gap:8px}
-.row > *{flex:1}
-ul{padding-left:18px}
-.small{font-size:13px;color:#555}
+:root {
+  --accent: #2d7bf4;
+  --bg: #f8f9fb;
+  --card-bg: #fff;
+  --border: #e2e6ea;
+}
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: #111;
+  max-width: 800px;
+  margin: 32px auto;
+  padding: 0 16px 60px;
+}
+header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+img.logo {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+h1 { margin: 0; font-size: 22px; color: var(--accent); }
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  padding: 16px;
+  border-radius: 10px;
+  margin-top: 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+}
+label {
+  display: block;
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 500;
+}
+input, button, select {
+  padding: 8px 10px;
+  margin-top: 6px;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+}
+button {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+}
+button:hover { background: #1e5fcc; }
+button.secondary {
+  background: #eee;
+  color: #333;
+}
+button.secondary:hover {
+  background: #ddd;
+}
+.row { display: flex; gap: 8px; flex-wrap: wrap; }
+.row > * { flex: 1; }
+ul { padding-left: 18px; }
+.small { font-size: 13px; color: #555; }
+.rem-item {
+  background: #f7f9ff;
+  border: 1px solid #e3e9ff;
+  padding: 8px 10px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+.rem-time { color: #333; font-size: 14px; }
+.rem-left { color: var(--accent); font-size: 13px; }
 </style>
 </head>
 <body>
 <header>
-<img id="logoImg" class="logo" src="" alt="" style="display:none">
-<div>
-<h1 style="margin:0;font-size:20px" id="appTitle">Hours Calculator</h1>
-<div class="small">Save rate · compute hours · set reminders</div>
-</div>
+  <img id="logoImg" class="logo" src="" alt="" style="display:none">
+  <div>
+    <h1 id="appTitle">Hours Calculator</h1>
+    <div class="small">Compute hours · Track earnings · Get reminders</div>
+  </div>
 </header>
 
+<!-- Profile -->
 <div class="card">
-<h3 style="margin:0 0 6px 0">Profile (saved locally)</h3>
-<label>App / Project name
-<input id="projectName" placeholder="e.g. Freelance / My Shop">
-</label>
-<label>Logo (image file)
-<input id="logoFile" type="file" accept="image/*">
-</label>
-<label>Hourly rate (currency numbers only)
-<input id="hourlyRate" type="number" min="0" step="0.01" placeholder="e.g. 25.00">
-</label>
-<div class="row">
-<button id="saveProfile">Save profile</button>
-<button id="clearProfile">Clear</button>
-</div>
+  <h3 style="margin:0 0 8px 0">Profile</h3>
+  <label>App / Project name
+    <input id="projectName" placeholder="e.g. Freelance / My Shop">
+  </label>
+  <label>Logo (image file)
+    <input id="logoFile" type="file" accept="image/*">
+  </label>
+  <label>Hourly rate
+    <input id="hourlyRate" type="number" min="0" step="0.01" placeholder="e.g. 25.00">
+  </label>
+  <div class="row">
+    <button id="clearProfile" class="secondary">Clear Profile</button>
+  </div>
 </div>
 
+<!-- Calculator -->
 <div class="card">
-<h3 style="margin:0 0 6px 0">Price → Hours</h3>
-<label>Price you want to earn
-<input id="priceInput" type="number" min="0" step="0.01" placeholder="e.g. 250">
-</label>
-<div class="row">
-<button id="calcBtn">Calculate hours</button>
-<button id="addReminderFromCalc">Set reminder for this task</button>
-</div>
-<div id="calcResult" class="small" style="margin-top:8px"></div>
+  <h3 style="margin:0 0 8px 0">Price → Hours</h3>
+  <label>Target amount
+    <input id="priceInput" type="number" min="0" step="0.01" placeholder="e.g. 250">
+  </label>
+  <div class="row">
+    <button id="calcBtn">Calculate</button>
+    <button id="addReminderFromCalc">Set Reminder for Task</button>
+  </div>
+  <div id="calcResult" class="small" style="margin-top:8px"></div>
 </div>
 
+<!-- Reminders -->
 <div class="card">
-<h3 style="margin:0 0 6px 0">Reminders</h3>
-<label>Reminder name
-<input id="remName" placeholder="e.g. Follow up client">
-</label>
-<label>When (date & time)
-<input id="remWhen" type="datetime-local">
-</label>
-<div class="row">
-<button id="setRem">Set reminder</button>
-<button id="clearFired">Remove fired reminders</button>
+  <h3 style="margin:0 0 8px 0">Reminders</h3>
+  <label>Reminder name
+    <input id="remName" placeholder="e.g. Follow up client">
+  </label>
+  <label>When
+    <input id="remWhen" type="datetime-local">
+  </label>
+  <div class="row">
+    <button id="setRem">Add Reminder</button>
+    <button id="clearFired" class="secondary">Remove Fired</button>
+    <button id="clearAllRem" class="secondary">Clear All</button>
+  </div>
+  <div style="margin-top:10px">
+    <strong>Upcoming:</strong>
+    <ul id="remList"></ul>
+  </div>
+  <div class="small" style="margin-top:8px">
+    Note: the page must stay open for notifications to appear.
+  </div>
 </div>
-<div style="margin-top:8px">
-<strong>Upcoming:</strong>
-<ul id="remList"></ul>
-</div>
-<div class="small" style="margin-top:8px">
-Note: notifications require permission and the page must remain open to deliver reminders.
-</div>
-</div>
+
+<audio id="dingSound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg" preload="auto"></audio>
 
 <script>
-/* Simple app using localStorage. Keys:
-'hr_profile' -> {name, rate, logoDataUrl}
-'hr_reminders' -> [{id,name,whenISO,fired}]
-*/
 const el = id => document.getElementById(id);
 
-function loadProfile(){
-const p = JSON.parse(localStorage.getItem('hr_profile')||'null');
-if(p){
-el('projectName').value = p.name || '';
-el('hourlyRate').value = p.rate || '';
-if(p.logoDataUrl){ el('logoImg').src = p.logoDataUrl; el('logoImg').style.display='block'; }
-el('appTitle').textContent = p.name || 'Hours Calculator';
-} else {
-el('logoImg').style.display='none';
-el('appTitle').textContent = 'Hours Calculator';
+/* Profile */
+function loadProfile() {
+  const p = JSON.parse(localStorage.getItem('hr_profile') || 'null');
+  if (p) {
+    el('projectName').value = p.name || '';
+    el('hourlyRate').value = p.rate || '';
+    if (p.logoDataUrl) {
+      el('logoImg').src = p.logoDataUrl;
+      el('logoImg').style.display = 'block';
+    } else el('logoImg').style.display = 'none';
+    el('appTitle').textContent = p.name || 'Hours Calculator';
+  } else {
+    el('appTitle').textContent = 'Hours Calculator';
+    el('logoImg').style.display = 'none';
+  }
 }
-}
-function saveProfile(){
-const name = el('projectName').value.trim();
-const rate = parseFloat(el('hourlyRate').value) || 0;
-const logoDataUrl = el('logoImg').src || '';
-localStorage.setItem('hr_profile', JSON.stringify({name,rate,logoDataUrl}));
-loadProfile();
-alert('Saved');
-}
-function clearProfile(){
-if(confirm('Clear saved profile?')) {
-localStorage.removeItem('hr_profile');
-loadProfile();
-}
+function saveProfile() {
+  const name = el('projectName').value.trim();
+  const rate = parseFloat(el('hourlyRate').value) || 0;
+  const logoDataUrl = el('logoImg').src || '';
+  localStorage.setItem('hr_profile', JSON.stringify({ name, rate, logoDataUrl }));
+  loadProfile();
 }
 
-/* logo file -> dataURL */
-el('logoFile').addEventListener('change', e=>{
-const f = e.target.files[0];
-if(!f) return;
-const r = new FileReader();
-r.onload = ()=> {
-el('logoImg').src = r.result;
-el('logoImg').style.display='block';
-};
-r.readAsDataURL(f);
+/* Auto-save profile changes */
+['projectName','hourlyRate'].forEach(id=>{
+  el(id).addEventListener('input', saveProfile);
+});
+el('clearProfile').addEventListener('click', () => {
+  if (confirm('Clear saved profile?')) {
+    localStorage.removeItem('hr_profile');
+    loadProfile();
+  }
+});
+el('logoFile').addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    el('logoImg').src = r.result;
+    el('logoImg').style.display = 'block';
+    saveProfile();
+  };
+  r.readAsDataURL(f);
 });
 
 /* Calculator */
-function calcHours(price, rate){
-if(!rate || rate <= 0) return null;
-const hours = price / rate;
-const whole = Math.floor(hours);
-const minutes = Math.round((hours - whole) * 60);
-return {hours: hours, text: `${hours.toFixed(2)} hrs (${whole}h ${minutes}m)`};
+function calcHours(price, rate) {
+  if (!rate || rate <= 0) return null;
+  const hours = price / rate;
+  const whole = Math.floor(hours);
+  const minutes = Math.round((hours - whole) * 60);
+  return { hours, text: `${hours.toFixed(2)} hrs (${whole}h ${minutes}m)` };
 }
-el('calcBtn').addEventListener('click', ()=>{
-const price = parseFloat(el('priceInput').value) || 0;
-const p = JSON.parse(localStorage.getItem('hr_profile')||'null');
-const rate = p ? (parseFloat(p.rate)||0) : (parseFloat(el('hourlyRate').value)||0);
-const res = calcHours(price, rate);
-el('calcResult').textContent = res ? `Needs ${res.text}` : 'Set a valid hourly rate first.';
+el('calcBtn').addEventListener('click', () => {
+  const price = parseFloat(el('priceInput').value) || 0;
+  const p = JSON.parse(localStorage.getItem('hr_profile') || 'null');
+  const rate = p ? (parseFloat(p.rate) || 0) : (parseFloat(el('hourlyRate').value) || 0);
+  const res = calcHours(price, rate);
+  el('calcResult').textContent = res ? `⏱ Needs ${res.text}` : '⚠️ Set a valid hourly rate first.';
 });
 
 /* Reminders */
-function getReminders(){ return JSON.parse(localStorage.getItem('hr_reminders')||'[]'); }
-function saveReminders(list){ localStorage.setItem('hr_reminders', JSON.stringify(list)); renderRemList(); }
-function renderRemList(){
-const list = getReminders();
-const ul = el('remList'); ul.innerHTML = '';
-if(list.length===0){ ul.innerHTML = '<li class="small">No reminders</li>'; return; }
-list.sort((a,b)=> new Date(a.whenISO) - new Date(b.whenISO));
-for(const r of list){
-const li = document.createElement('li');
-const when = new Date(r.whenISO);
-li.innerHTML = `<strong>${r.name}</strong> — ${when.toLocaleString()} ${r.fired?'<em>(done)</em>':''}
-<div style="margin-top:6px">
-<button data-id="${r.id}" class="del">Delete</button>
-</div>`;
-ul.appendChild(li);
-}
-ul.querySelectorAll('.del').forEach(btn=>{
-btn.addEventListener('click', ()=> {
-const id = btn.getAttribute('data-id');
-const filtered = getReminders().filter(x=>x.id!==id);
-saveReminders(filtered);
-});
-});
-}
-el('setRem').addEventListener('click', ()=>{
-const name = el('remName').value.trim() || 'Reminder';
-const when = el('remWhen').value;
-if(!when){ alert('Pick date & time'); return; }
-const id = 'r'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
-const list = getReminders();
-list.push({id,name,whenISO:new Date(when).toISOString(),fired:false});
-saveReminders(list);
-el('remName').value=''; el('remWhen').value='';
-alert('Reminder saved');
-});
+function getReminders() { return JSON.parse(localStorage.getItem('hr_reminders') || '[]'); }
+function saveReminders(list) { localStorage.setItem('hr_reminders', JSON.stringify(list)); renderRemList(); }
 
-/* Set reminder from calculated price (prefill name) */
-el('addReminderFromCalc').addEventListener('click', ()=>{
-const price = parseFloat(el('priceInput').value)||0;
-const p = JSON.parse(localStorage.getItem('hr_profile')||'null');
-const rate = p ? (parseFloat(p.rate)||0) : (parseFloat(el('hourlyRate').value)||0);
-const res = calcHours(price, rate);
-if(!res){ alert('Set hourly rate first'); return; }
-el('remName').value = `Earn ${price} (${res.hours.toFixed(1)}h)`;
-el('remWhen').focus();
-});
-
-/* remove fired reminders */
-el('clearFired').addEventListener('click', ()=>{
-const filtered = getReminders().filter(r=>!r.fired);
-saveReminders(filtered);
-});
-
-/* clear profile buttons */
-el('saveProfile').addEventListener('click', saveProfile);
-el('clearProfile').addEventListener('click', clearProfile);
-
-/* Notifications permission */
-function ensureNotificationPermission(){
-if(!('Notification' in window)) return Promise.resolve(false);
-if(Notification.permission === 'granted') return Promise.resolve(true);
-if(Notification.permission !== 'denied') return Notification.requestPermission().then(p => p === 'granted');
-return Promise.resolve(false);
+function ensureNotificationPermission() {
+  if (!('Notification' in window)) return Promise.resolve(false);
+  if (Notification.permission === 'granted') return Promise.resolve(true);
+  if (Notification.permission !== 'denied')
+    return Notification.requestPermission().then(p => p === 'granted');
+  return Promise.resolve(false);
 }
 
-/* check loop: every 5 seconds, check reminders and fire if due */
-function checkReminders(){
-const now = new Date();
-const list = getReminders();
-let changed = false;
-for(const r of list){
-if(r.fired) continue;
-const when = new Date(r.whenISO);
-if(now >= when){
-r.fired = true;
-changed = true;
-ensureNotificationPermission().then(ok=>{
-const msg = `${r.name} — ${when.toLocaleString()}`;
-if(ok){
-try { new Notification(r.name, {body: 'Reminder due: '+when.toLocaleString(), icon: (el('logoImg').src||undefined)}); }
-catch(e){ alert(msg); }
-} else {
-alert('Reminder: '+msg);
+function fireReminder(r) {
+  const when = new Date(r.whenISO);
+  const msg = `${r.name} — ${when.toLocaleString()}`;
+  ensureNotificationPermission().then(ok => {
+    el('dingSound').play().catch(()=>{});
+    if (ok) {
+      try {
+        new Notification(r.name, {
+          body: 'Reminder due: ' + when.toLocaleString(),
+          icon: el('logoImg').src || undefined
+        });
+      } catch { alert(msg); }
+    } else alert('Reminder: ' + msg);
+  });
+  const list = getReminders();
+  const item = list.find(x => x.id === r.id);
+  if (item) item.fired = true;
+  saveReminders(list);
 }
-});
+
+function scheduleReminder(r) {
+  const delay = Math.max(0, new Date(r.whenISO) - Date.now());
+  setTimeout(() => {
+    fireReminder(r);
+  }, delay);
 }
+
+function renderRemList() {
+  const list = getReminders();
+  const ul = el('remList');
+  ul.innerHTML = '';
+  if (list.length === 0) {
+    ul.innerHTML = '<li class="small">No reminders</li>';
+    return;
+  }
+  list.sort((a,b) => new Date(a.whenISO) - new Date(b.whenISO));
+  for (const r of list) {
+    const li = document.createElement('li');
+    li.className = 'rem-item';
+    const when = new Date(r.whenISO);
+    const timeStr = when.toLocaleString(undefined,{dateStyle:'short',timeStyle:'short'});
+    const remLeft = calcTimeLeft(when);
+    li.innerHTML = `
+      <div><strong>${r.name}</strong></div>
+      <div class="rem-time">${timeStr} ${r.fired?'<em>(done)</em>':''}</div>
+      <div class="rem-left">${!r.fired ? '⏳ '+remLeft : ''}</div>
+      <div style="margin-top:6px">
+        <button data-id="${r.id}" class="secondary del">Delete</button>
+      </div>`;
+    ul.appendChild(li);
+  }
+  ul.querySelectorAll('.del').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-id');
+      const filtered = getReminders().filter(x => x.id !== id);
+      saveReminders(filtered);
+    });
+  });
 }
-if(changed) saveReminders(list);
+
+/* Live countdown updates */
+function calcTimeLeft(when) {
+  const diff = when - new Date();
+  if (diff <= 0) return 'due now';
+  const mins = Math.floor(diff / 60000);
+  const hrs = Math.floor(mins / 60);
+  const remM = mins % 60;
+  if (hrs > 0) return `${hrs}h ${remM}m left`;
+  return `${remM} min left`;
 }
-/* run check loop */
-setInterval(checkReminders, 5000);
-window.addEventListener('load', ()=>{
-loadProfile();
-renderRemList();
-checkReminders();
+setInterval(() => {
+  document.querySelectorAll('.rem-item').forEach(li => {
+    const timeEl = li.querySelector('.rem-time');
+    if (!timeEl) return;
+    const dateText = timeEl.textContent.split('(')[0].trim();
+    const when = new Date(dateText);
+    const remLeftEl = li.querySelector('.rem-left');
+    if (remLeftEl && !timeEl.textContent.includes('(done)'))
+      remLeftEl.textContent = '⏳ ' + calcTimeLeft(when);
+  });
+}, 60000);
+
+el('setRem').addEventListener('click', () => {
+  const name = el('remName').value.trim() || 'Reminder';
+  const when = el('remWhen').value;
+  if (!when) return alert('Pick a date & time first.');
+  const id = 'r' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
+  const list = getReminders();
+  const item = { id, name, whenISO: new Date(when).toISOString(), fired: false };
+  list.push(item);
+  saveReminders(list);
+  el('remName').value = ''; el('remWhen').value = '';
+  scheduleReminder(item);
+  alert('Reminder set!');
 });
 
-/* initial load: if no profile, try load from fields */
-(function init(){
-loadProfile();
-renderRemList();
-})();
+el('addReminderFromCalc').addEventListener('click', () => {
+  const price = parseFloat(el('priceInput').value) || 0;
+  const p = JSON.parse(localStorage.getItem('hr_profile') || 'null');
+  const rate = p ? (parseFloat(p.rate) || 0) : (parseFloat(el('hourlyRate').value) || 0);
+  const res = calcHours(price, rate);
+  if (!res) return alert('Set hourly rate first');
+  el('remName').value = `Earn ${price} (${res.hours.toFixed(1)}h)`;
+  el('remWhen').focus();
+});
+
+el('clearFired').addEventListener('click', () => {
+  const filtered = getReminders().filter(r => !r.fired);
+  saveReminders(filtered);
+});
+el('clearAllRem').addEventListener('click', () => {
+  if (confirm('Delete ALL reminders?')) {
+    localStorage.removeItem('hr_reminders');
+    renderRemList();
+  }
+});
+
+/* Init */
+window.addEventListener('load', () => {
+  loadProfile();
+  renderRemList();
+  getReminders().filter(r => !r.fired)
+    .forEach(scheduleReminder);
+});
 </script>
 </body>
 </html>
